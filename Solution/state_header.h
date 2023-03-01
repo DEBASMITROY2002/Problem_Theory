@@ -1,11 +1,12 @@
 //
-//  main.cpp
-//  State
+//  state_header.h
+//  Problem
 //
-//  Created by DEBASMIT ROY on 01/03/23.
+//  Created by DEBASMIT ROY on 02/03/23.
 //
 
-// All indexes are started from 0
+#ifndef state_header_h
+#define state_header_h
 
 #include <iostream>
 #include <vector>
@@ -25,6 +26,8 @@ namespace  STATE{
         
         vector<function<int(State*,int,int)>>operations;
         unordered_map<string,int>named_operationIndex;
+        vector<string>named_operationIndex_opp;
+        unordered_map<string,string>inverse_mapping;
         
         vector<function<string(State*,int,int)>>queries;
         unordered_map<string,int>named_queryIndex;
@@ -32,6 +35,7 @@ namespace  STATE{
         int min_row, max_row;
         int min_col, max_col;
         
+        State(){}
         State(STATE_ADT _stateSpace,
               int _min_row,
               int _max_row,
@@ -71,15 +75,21 @@ namespace  STATE{
         }
         
         
-        void setOperationRule(
-                              vector<pair<string,function<int(State*,int,int)>>> named_operations){
+        void setOperationRule(vector<pair<string,function<int(State*,int,int)>>> named_operations){
             for(int i=0;i <named_operations.size();i++){
                 auto[nm,op] = named_operations[i];
-                
                 named_operationIndex[nm] = i;
+                named_operationIndex_opp.push_back(nm);
                 operations.push_back(op);
             }
         }
+        
+        void setInverseMapping(vector<pair<string,string>>inv_map){
+            for(auto x:inv_map){
+                inverse_mapping[x.first]=x.second;
+            }
+        }
+        
         
         void setQuery(
                       vector<pair<string,function<string(State*,int,int)>>> named_queries){
@@ -127,6 +137,18 @@ namespace  STATE{
             }
         }
         
+        int performInverse(string inv_op_name, int row,int col){
+            string op_name = inverse_mapping[inv_op_name];
+            try{
+                if(named_operationIndex.find(op_name)==named_operationIndex.end())
+                    throw op_name;
+                return operations[named_operationIndex[op_name]](this,row,col);
+            }catch(string e){
+                cout<<"Operation Undefined\n";
+                exit(-1);
+                return -1;
+            }
+        }
         
         string performQuery(int q_index, int row,int col){
             try{
@@ -165,12 +187,32 @@ namespace  STATE{
             cout<<"\n";
         }
         
-        bool operator = (const State& st){
-            return st.stateSpace == this->stateSpace;
+        void operator = (const State& st){
+            this->stateSpace = st.stateSpace;
+            
+            this->min_col = st.min_col;
+            this->min_row = st.min_row;
+            
+            this->max_col = st.max_col;
+            this->max_row = st.max_row;
+            
+            this->operations = st.operations;
+            this->named_operationIndex = st.named_operationIndex;
+            
+            this->queries = st.queries;
+            this->named_queryIndex = st.named_queryIndex;
+            
+            this->inverse_mapping = st.inverse_mapping;
+            this->named_operationIndex_opp = st.named_operationIndex_opp;
         }
         
+        bool equal (const State& st){
+            return this->stateSpace == st.stateSpace;
+        }
         
         friend ostream& operator<<(ostream& os, const State& st);
+        
+        
     };
 
     ostream& operator<<(ostream& os, const State& st){
@@ -189,84 +231,4 @@ namespace  STATE{
 }
 
 
-pair<int,int> decode_0(string s){
-    stringstream ss(s);
-    string word;
-    ss >> word;
-    int a = stoi(word);
-    ss >> word;
-    int b = stoi(word);
-    return {a,b};
-}
-
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    
-    STATE::State s({
-        {1,2,3},
-        {4,5,6},
-        {7,8,0}}
-                   ,0,2,0,2);
-    
-    s.setQuery({
-        {"Where is the blank space?",[](STATE::State *st,int row,int col){
-            for(int i=st->min_row;i<=st->max_row;i++){
-                 for(int j=st->min_col;j<=st->max_col;j++){
-                    if(st->stateSpace[i][j]==0)
-                        return string(to_string(i)+"$"+to_string(j));
-                }
-            }
-            return string("$");
-        }}
-    });
-    
-    s.setOperationRule({
-        {"NORTH",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank, col_blank-1);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank][col_blank-1]);
-                return true;
-            }else
-                return false;
-        }},
-        {"SOUTH",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank, col_blank+1);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank][col_blank+1]);
-                return true;
-            }else
-                return false;
-        }},
-        {"EAST",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank-1, col_blank);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank-1][col_blank]);
-                return true;
-            }else
-                return false;
-        }},
-        {"WEST",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank+1, col_blank);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank+1][col_blank]);
-                return true;
-            }else
-                return false;
-        }}
-    });
-    
-    
-    cout<<s;
-    auto [row,col] = decode_0(s.performQuery("Where is the blank space?",-1,-1));
-    cout<<row<<" "<<col<<endl;
-    s.performOperation("NORTH", -1, -1);
-    cout<<s;
-    auto [row_,col_] = decode_0(s.performQuery("Where is the blank space?",-1,-1));
-    cout<<row_<<" "<<col_<<endl;
-    
-    return 0;
-}
+#endif /* state_header_h */

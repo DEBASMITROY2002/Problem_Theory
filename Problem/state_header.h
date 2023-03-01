@@ -1,11 +1,12 @@
 //
-//  main.cpp
-//  State
+//  state_header.h
+//  Problem
 //
-//  Created by DEBASMIT ROY on 01/03/23.
+//  Created by DEBASMIT ROY on 02/03/23.
 //
 
-// All indexes are started from 0
+#ifndef state_header_h
+#define state_header_h
 
 #include <iostream>
 #include <vector>
@@ -32,6 +33,7 @@ namespace  STATE{
         int min_row, max_row;
         int min_col, max_col;
         
+        State(){}
         State(STATE_ADT _stateSpace,
               int _min_row,
               int _max_row,
@@ -171,6 +173,8 @@ namespace  STATE{
         
         
         friend ostream& operator<<(ostream& os, const State& st);
+        
+        
     };
 
     ostream& operator<<(ostream& os, const State& st){
@@ -189,84 +193,4 @@ namespace  STATE{
 }
 
 
-pair<int,int> decode_0(string s){
-    stringstream ss(s);
-    string word;
-    ss >> word;
-    int a = stoi(word);
-    ss >> word;
-    int b = stoi(word);
-    return {a,b};
-}
-
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    
-    STATE::State s({
-        {1,2,3},
-        {4,5,6},
-        {7,8,0}}
-                   ,0,2,0,2);
-    
-    s.setQuery({
-        {"Where is the blank space?",[](STATE::State *st,int row,int col){
-            for(int i=st->min_row;i<=st->max_row;i++){
-                 for(int j=st->min_col;j<=st->max_col;j++){
-                    if(st->stateSpace[i][j]==0)
-                        return string(to_string(i)+"$"+to_string(j));
-                }
-            }
-            return string("$");
-        }}
-    });
-    
-    s.setOperationRule({
-        {"NORTH",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank, col_blank-1);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank][col_blank-1]);
-                return true;
-            }else
-                return false;
-        }},
-        {"SOUTH",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank, col_blank+1);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank][col_blank+1]);
-                return true;
-            }else
-                return false;
-        }},
-        {"EAST",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank-1, col_blank);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank-1][col_blank]);
-                return true;
-            }else
-                return false;
-        }},
-        {"WEST",[](STATE::State *st,int row,int col){
-            auto [row_blank,col_blank] = decode_0(st->performQuery("Where is the blank space?",-1,-1));
-            bool isValid = st->isValidDomain(row_blank+1, col_blank);
-            if(isValid){
-                swap(st->stateSpace[row_blank][col_blank], st->stateSpace[row_blank+1][col_blank]);
-                return true;
-            }else
-                return false;
-        }}
-    });
-    
-    
-    cout<<s;
-    auto [row,col] = decode_0(s.performQuery("Where is the blank space?",-1,-1));
-    cout<<row<<" "<<col<<endl;
-    s.performOperation("NORTH", -1, -1);
-    cout<<s;
-    auto [row_,col_] = decode_0(s.performQuery("Where is the blank space?",-1,-1));
-    cout<<row_<<" "<<col_<<endl;
-    
-    return 0;
-}
+#endif /* state_header_h */
