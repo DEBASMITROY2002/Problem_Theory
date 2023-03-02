@@ -10,9 +10,9 @@ Intution any Turing Complete problem is on a 1D string. It can be mapped on 2D t
 Hue Hue Hue!
 
 ## Here are two examples:
-1. 
+1. 8-Puzzle Problem
 
 ![Output](8p.png)
-2. 
+2. Water Jug Problem
 
 ![Output](wj.png)
