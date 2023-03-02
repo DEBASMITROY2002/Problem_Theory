@@ -37,9 +37,14 @@ public:
         goal_state.setQuery(named_query);
     }
     
-    void set_inv_to_all_state(vector<pair<string,string>> named_inv_operations){
-        init_state.setInverseMapping(named_inv_operations);
-        goal_state.setInverseMapping(named_inv_operations);
+//    void set_inv_to_all_state(vector<pair<string,string>> named_inv_operations){
+//        init_state.setInverseMapping(named_inv_operations);
+//        goal_state.setInverseMapping(named_inv_operations);
+//    }
+    
+    void setConstraintsToAll(function<bool(STATE::State*,int,int)> f){
+        init_state.setConstraints(f);
+        goal_state.setConstraints(f);
     }
     
     void print2d(STATE_ADT cur_state){

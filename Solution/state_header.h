@@ -23,7 +23,8 @@ namespace  STATE{
     class State{
     public:
         STATE_ADT stateSpace;
-        
+        function<bool(State*,int,int)>constraint_function;
+    
         vector<function<int(State*,int,int)>>operations;
         unordered_map<string,int>named_operationIndex;
         vector<string>named_operationIndex_opp;
@@ -34,7 +35,7 @@ namespace  STATE{
         
         int min_row, max_row;
         int min_col, max_col;
-        
+
         State(){}
         State(STATE_ADT _stateSpace,
               int _min_row,
@@ -67,14 +68,15 @@ namespace  STATE{
             max_col = _max_col;
         }
         
-        bool isValidDomain(int row,
-                           int col){
-            return (row>=min_row && row<=max_row)
-                            &&
-                   (col>=min_col && col<=max_col);
+        void setConstraints(function<bool(State*,int,int)> f){
+            constraint_function = f;
         }
         
-        
+        bool isValidDomain(int row,
+                           int col){
+            return constraint_function(this,row,col);
+        }
+
         void setOperationRule(vector<pair<string,function<int(State*,int,int)>>> named_operations){
             for(int i=0;i <named_operations.size();i++){
                 auto[nm,op] = named_operations[i];
@@ -204,6 +206,8 @@ namespace  STATE{
             
             this->inverse_mapping = st.inverse_mapping;
             this->named_operationIndex_opp = st.named_operationIndex_opp;
+            
+            this->constraint_function = st.constraint_function;
         }
         
         bool equal (const State& st){

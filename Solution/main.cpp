@@ -4,7 +4,6 @@
 //
 //  Created by DEBASMIT ROY on 02/03/23.
 //
-
 #include <iostream>
 #include "state_header.h"
 #include "solution_common.h"
@@ -29,6 +28,12 @@ int main(int argc, const char * argv[]) {
                    ,0,1,0,1);
     
     ids_solution s(init_state,goal_state,100);
+    
+    s.setConstraintsToAll([](STATE::State *st,int row,int col){
+        return (row>=st->min_row && row<=st->max_row)
+                        &&
+               (col>=st->min_col && col<=st->max_col);
+    });
     
     s.set_query_to_all_state({
         {"Where is the blank space?",[](STATE::State *st,int row,int col){
@@ -80,6 +85,9 @@ int main(int argc, const char * argv[]) {
         }}
     });
 
+//    cout<<s.init_state;
+//    s.init_state.performOperation("EAST", -1, -1);
+//    cout<<s.init_state;
     s.search();
     
     return 0;
