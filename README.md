@@ -10,5 +10,9 @@ Intution any Turing Complete problem is on a 1D string. It can be mapped on 2D t
 Hue Hue Hue!
 
 ## Here are two examples:
-1. ![Output](8p.png)
-2. ![Output](wj.png)
+1. 
+
+![Output](8p.png)
+2. 
+
+![Output](wj.png)
