@@ -8,3 +8,7 @@ Intution any Turing Complete problem is on a 1D string. It can be mapped on 2D t
 3. Run .search() to reach your goal.
 
 Hue Hue Hue!
+
+## Here are two examples:
+1. ![Output](8p.png)
+2. ![Output](wj.png)
